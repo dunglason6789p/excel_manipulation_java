@@ -2,9 +2,20 @@ package util;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
+@SuppressWarnings("unchecked")
 public class ObjectMap {
-    private final Map<String, Object> internalMap = new HashMap<>();
+    private final Supplier<Map<String, Object>> mapSupplier;
+    private final Map<String, Object> internalMap;
+    public ObjectMap() {
+        this.mapSupplier = HashMap::new;
+        this.internalMap = this.mapSupplier.get();
+    }
+    public ObjectMap(Supplier<Map<String, Object>> mapSupplier) {
+        this.mapSupplier = mapSupplier;
+        this.internalMap = this.mapSupplier.get();
+    }
     public ObjectMap writeToPath(Object value, String... path) {
         Map<String, Object> parentNode = null;
         Object currentNode = internalMap;
@@ -12,7 +23,7 @@ public class ObjectMap {
             parentNode = (Map<String, Object>)currentNode;
             currentNode = parentNode.get(path[i]);
             if (! (currentNode instanceof Map)) {
-                currentNode = new HashMap<>();
+                currentNode = mapSupplier.get();
                 parentNode.put(path[i], currentNode);
             }
         }
@@ -27,7 +38,7 @@ public class ObjectMap {
             parentNode = (Map<String, Object>)currentNode;
             currentNode = parentNode.get(path[i]);
             if (! (currentNode instanceof Map)) {
-                currentNode = new HashMap<>();
+                currentNode = mapSupplier.get();
                 parentNode.put(path[i], currentNode);
             }
         }
